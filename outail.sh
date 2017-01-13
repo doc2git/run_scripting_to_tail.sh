@@ -1,0 +1,22 @@
+#!/usr/bin/bash
+echo $0;
+realp=`realpath $1`;
+if [ $realp = $0 ];
+    then echo The argument cannot be set as ${0}, it is me!; 
+    exit 11;
+fi;
+bsname=`basename $realp`;
+echo $bsname;
+sudo chmod +x $realp;
+md5sum_out=`md5sum $realp`;
+hash="$(echo $md5sum_out | awk '{print $1}')";
+echo $hash;
+vimming_script_outtemp_dir='/tmp/vimming_script_outtemp.d';
+[ -d $vimming_script_outtemp_dir ] || mkdir $vimming_script_outtemp_dir; 
+temp_full_filename=$vimming_script_outtemp_dir/${bsname}.$hash;
+echo $temp_full_filename;
+parser=`head -1 $realp | awk -F'!' '{print $2}'`;
+echo $parser;
+$parser $realp;
+$parser $realp > $temp_full_filename;
+sed -e '1i\\' -e 's/^/\# /' $temp_full_filename >> $1;
